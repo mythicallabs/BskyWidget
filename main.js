@@ -3,7 +3,7 @@ var request = new Request('https://public.api.bsky.app/xrpc/app.bsky.actor.getPr
 var profile = request.loadJSON()
 //If user has a display name, display it, otherwise display their handle
 if(!profile.displayName || profile.displayName == ''){
-    widget.addText(profile.handle.split('.')[0])
+    widget.addText(profile.handle.toString().split('.')[0])
 }else{
     widget.addText(profile.displayName)
 }
