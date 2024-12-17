@@ -1,20 +1,32 @@
 var widget = new ListWidget()
-var request = new Request('https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=' + args.widgetParams)
-var profile = request.loadJSON()
-//If user has a display name, display it, otherwise display their handle
-if(!profile.displayName || profile.displayName == ''){
-    widget.addText(profile.handle.toString().split('.')[0])
+if(args.widgetParameter){
+  var request = new Request('https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=' + args.widgetParameter)
 }else{
-    widget.addText(profile.displayName)
+  var request = new Request('https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=bsky.app')
 }
-//Generate follow count that is pleasing to look at and add it under the users name
-var followCount = profile.followCount
+var profile = await request.loadJSON()
+var username = profile.displayName
+if(!username || username == ""){
+  username = profile.handle.split(".")[0]
+}
+var followCount = profile.followersCount
+text = widget.addText(username)
+text.font = new Font("seirf", 20)
 if(followCount < 999){
-    widget.addText(profile.followCount + ' followers')
-}else if(followCount < 999999){
-    widget.addText((followCount / 1000).toFixed(1) + 'k followers')
-}else if(followCount < 999999999){
-    widget.addText((followCount / 1000000).toFixed(1) + 'm followers')
-}else if(followCount < 999999999999){
-    widget.addText((followCount / 1000000000).toFixed(1) + 'b followers')
+  
+}else{
+  if(followCount < 999999){
+    splitcount = followCount.toString().split("")
+    followCount = splitcount[0] + splitcount[1] + "k"
+  }else{
+    if(followCount < 999999999){
+      splitcount = followCount.toString().split("")
+    followCount = splitcount[0] + splitcount[1] + "." + splitcount[2] + "M"
+    }
+  }
 }
+widget.addText(followCount.toString())
+if (!config.runsInWidget) {
+  await widget.presentSmall()
+}
+Script.setWidget(widget)
